@@ -2562,7 +2562,7 @@ get_writeable_packet (struct full_conn *conn, unsigned need_at_least)
     int is_err;
 
     packet_out = lsquic_send_ctl_get_writeable_packet(&conn->fc_send_ctl,
-                            PNS_APP, need_at_least, &conn->fc_path, 0, &is_err);
+                            PNS_APP, need_at_least, &conn->fc_path, 0, &is_err, 0);
     if (!packet_out && is_err)
         ABORT_ERROR("cannot allocate packet: %s", strerror(errno));
     return packet_out;

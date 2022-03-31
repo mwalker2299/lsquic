@@ -229,7 +229,7 @@ lsquic_send_ctl_new_packet_out (lsquic_send_ctl_t *, unsigned,
 
 struct lsquic_packet_out *
 lsquic_send_ctl_get_writeable_packet (lsquic_send_ctl_t *, enum packnum_space,
-      unsigned need_at_least, const struct network_path *, int, int *is_err);
+      unsigned need_at_least, const struct network_path *, int, int *is_err, lsquic_stream_id_t stream_id);
 
 struct lsquic_packet_out *
 lsquic_send_ctl_get_packet_for_stream (lsquic_send_ctl_t *,

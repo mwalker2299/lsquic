@@ -1979,7 +1979,7 @@ get_writeable_packet_on_path (struct ietf_full_conn *conn,
     int is_err;
 
     packet_out = lsquic_send_ctl_get_writeable_packet(&conn->ifc_send_ctl,
-                            PNS_APP, need_at_least, path, regen_match, &is_err);
+                            PNS_APP, need_at_least, path, regen_match, &is_err, 0);
     if (!packet_out && is_err)
         ABORT_ERROR("cannot allocate packet: %s", strerror(errno));
     return packet_out;

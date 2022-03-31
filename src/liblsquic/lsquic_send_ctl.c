@@ -2228,6 +2228,7 @@ lsquic_send_ctl_new_packet_out (lsquic_send_ctl_t *ctl, unsigned need_at_least,
         return NULL;
 
     packet_out->po_packno = send_ctl_next_packno(ctl);
+    packet_out->associated_stream = 0;
     LSQ_DEBUG("created packet %"PRIu64, packet_out->po_packno);
     EV_LOG_PACKET_CREATED(LSQUIC_LOG_CONN_ID, packet_out);
     return packet_out;
@@ -2268,7 +2269,7 @@ lsquic_send_ctl_last_scheduled (struct lsquic_send_ctl *ctl,
 lsquic_packet_out_t *
 lsquic_send_ctl_get_writeable_packet (lsquic_send_ctl_t *ctl,
                 enum packnum_space pns, unsigned need_at_least,
-                const struct network_path *path, int regen_match, int *is_err)
+                const struct network_path *path, int regen_match, int *is_err, lsquic_stream_id_t stream_id)
 {
     lsquic_packet_out_t *packet_out;
 
@@ -2277,8 +2278,10 @@ lsquic_send_ctl_get_writeable_packet (lsquic_send_ctl_t *ctl,
     packet_out = lsquic_send_ctl_last_scheduled(ctl, pns, path, regen_match);
     if (packet_out
         && !(packet_out->po_flags & (PO_MINI|PO_STREAM_END|PO_RETX))
-        && lsquic_packet_out_avail(packet_out) >= need_at_least)
+        && lsquic_packet_out_avail(packet_out) >= need_at_least
+        && (stream_id == packet_out->associated_stream || packet_out->associated_stream == 0))
     {
+        packet_out->associated_stream = stream_id;
         return packet_out;
     }
 
@@ -2297,6 +2300,7 @@ lsquic_send_ctl_get_writeable_packet (lsquic_send_ctl_t *ctl,
     }
     else if (is_err)
         *is_err = 1;
+    packet_out->associated_stream = stream_id;
     return packet_out;
 }
 
@@ -2880,8 +2884,11 @@ lsquic_send_ctl_get_packet_for_stream (lsquic_send_ctl_t *ctl,
     enum buf_packet_type packet_type;
 
     if (lsquic_send_ctl_schedule_stream_packets_immediately(ctl))
+    {
+
         return lsquic_send_ctl_get_writeable_packet(ctl, PNS_APP,
-                                                need_at_least, path, 0, NULL);
+                                                need_at_least, path, 0, NULL, stream->id);
+    }
     else
     {
         if (!lsquic_send_ctl_has_buffered(ctl))

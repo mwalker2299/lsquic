@@ -80,6 +80,7 @@ typedef struct lsquic_packet_out
     lsquic_packno_t    po_ack2ed;       /* If packet has ACK frame, value of
                                          * largest acked in it.
                                          */
+    lsquic_stream_id_t associated_stream;
     struct lsquic_packet_out
                       *po_loss_chain;   /* Circular linked list */
 
