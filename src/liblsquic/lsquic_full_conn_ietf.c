@@ -1382,9 +1382,9 @@ lsquic_ietf_full_conn_client_new (struct lsquic_engine_public *enpub,
     /* Do not infer anything about server limits before processing its
      * transport parameters.
      */
-    conn->ifc_max_streams_in[SD_BIDI] = enpub->enp_settings.es_max_streams_in;
+    conn->ifc_max_streams_in[SD_BIDI] = enpub->enp_settings.es_init_max_streams_bidi;
     conn->ifc_max_allowed_stream_id[SIT_BIDI_SERVER] =
-        enpub->enp_settings.es_max_streams_in << SIT_SHIFT;
+        enpub->enp_settings.es_init_max_streams_bidi << SIT_SHIFT;
 
     if (flags & IFC_HTTP)
     {
