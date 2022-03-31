@@ -3378,7 +3378,7 @@ stream_write_to_packets (lsquic_stream_t *stream, struct lsquic_reader *reader,
         .fgc_stream = stream,
         .fgc_reader = reader,
         .fgc_nread_from_reader = 0,
-        .fgc_thresh = thresh,
+        .fgc_thresh = 0,
     };
 
 #if LSQUIC_EXTRA_CHECKS
@@ -3656,27 +3656,8 @@ stream_write (lsquic_stream_t *stream, struct lsquic_reader *reader,
     total_len = len + frames + stream->sm_n_buffered;
     thresh = lsquic_stream_flush_threshold(stream, total_len);
     n_allowed = stream_get_n_allowed(stream);
-    if (total_len <= n_allowed && total_len < thresh)
-    {
-        if (!(swo & SWO_BUFFER))
-            return 0;
-        nwritten = 0;
-        do
-        {
-            nw = save_to_buffer(stream, reader, len - nwritten);
-            if (nw > 0)
-                nwritten += (size_t) nw;
-            else if (nw == 0)
-                break;
-            else
-                return nw;
-        }
-        while (nwritten < len
-                        && stream->sm_n_buffered < stream->sm_n_allocated);
-        return nwritten;
-    }
-    else
-        return stream_write_to_packets(stream, reader, thresh, swo);
+    LSQ_DEBUG("Writing to stream %"PRIu64", total len = %u, thresh = %u, n_allowed = %u", stream->id, total_len, thresh, n_allowed);
+    return stream_write_to_packets(stream, reader, thresh, swo);
 }
 
 
