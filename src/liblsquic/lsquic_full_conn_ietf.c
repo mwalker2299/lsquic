@@ -8336,7 +8336,7 @@ ietf_full_conn_ci_tick (struct lsquic_conn *lconn, lsquic_time_t now)
         if (!write_is_possible(conn))
             goto end_write;
 
-    if (!TAILQ_EMPTY(&conn->ifc_pub.write_streams))
+    if (!TAILQ_EMPTY(&conn->ifc_pub.write_streams) && lsquic_send_ctl_can_send(&conn->ifc_send_ctl))
     {
         process_streams_write_events(conn, 1);
         if (!write_is_possible(conn))
@@ -8348,8 +8348,10 @@ ietf_full_conn_ci_tick (struct lsquic_conn *lconn, lsquic_time_t now)
     if (!write_is_possible(conn))
         goto end_write;
 
-    if (!TAILQ_EMPTY(&conn->ifc_pub.write_streams))
+    if (!TAILQ_EMPTY(&conn->ifc_pub.write_streams) && lsquic_send_ctl_can_send(&conn->ifc_send_ctl))
+    {
         process_streams_write_events(conn, 0);
+    }
 
     lsquic_send_ctl_maybe_app_limited(&conn->ifc_send_ctl, CUR_NPATH(conn));
 
@@ -8364,9 +8366,9 @@ ietf_full_conn_ci_tick (struct lsquic_conn *lconn, lsquic_time_t now)
             tick |= TICK_CLOSE;
         if (!(conn->ifc_mflags & MF_CONN_CLOSE_PACK)
             /* Generate CONNECTION_CLOSE frame if:
-             *     ... this is a client and handshake was successful;
+             *     ... handshake was successful;
              */
-            && (!(conn->ifc_flags & (IFC_SERVER|IFC_HSK_FAILED))
+            && (!(conn->ifc_flags & (IFC_HSK_FAILED))
                 /* or: sent a GOAWAY frame;
                  */
                     || (conn->ifc_flags & IFC_GOAWAY_CLOSE)
