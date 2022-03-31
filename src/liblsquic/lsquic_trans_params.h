@@ -125,7 +125,7 @@ struct transport_params
 #define TP_DEF_INIT_MAX_STREAM_DATA_BIDI_REMOTE 0
 #define TP_DEF_INIT_MAX_STREAM_DATA_UNI 0
 #define TP_DEF_MAX_IDLE_TIMEOUT 0
-#define TP_DEF_MAX_ACK_DELAY 25u
+#define TP_DEF_MAX_ACK_DELAY 5u
 #define TP_DEF_ACTIVE_CONNECTION_ID_LIMIT 2
 
 /* [draft-ietf-quic-transport-34], Section 18.2 */
